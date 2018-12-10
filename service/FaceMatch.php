@@ -47,6 +47,9 @@ class Service_FaceMatch
             $img_url = "https://www.beishanwen.com/WhatsStar/upload/" . $img_name;
         }
         $ret = $this->getSimilarStar($img_url);
+        if (false === $ret) {
+            return Ad_Response::arrayRet(Const_Error::FAILED, array());
+        }
 
         return Ad_Response::arrayRet(Const_Error::SUCCESS, $ret);
     }
@@ -62,16 +65,26 @@ class Service_FaceMatch
         );
         $datas = self::postData($url, $data);
         $datas = self::decodeHtmlEntity($datas);
-        if ($datas['res_code'] == '0000') {
-            foreach ($datas['result'] as $k => $v) {
-                $ret = self::isUrlExist('http://www.eyekey.com' . $v['url']);
-                if (false === $ret) {
-                    unset($datas['result'][$k]); // 过滤无效的图片链接
-                }
-            }
+        // $datas = json_encode($datas, JSON_UNESCAPED_UNICODE);
+
+        if ('0000' != $datas['res_code']) {
+            return false;
         }
-        $datas = json_encode($datas, JSON_UNESCAPED_UNICODE);
-        return $datas;
+
+        $imgInfos = array();
+        foreach ($datas['result'] as $k => $v) {
+            $ret = self::isUrlExist('http://www.eyekey.com' . $v['url']);
+            if (false === $ret) {
+                // unset($datas['result'][$k]); // 过滤无效的图片链接
+                continue;
+            }
+            $imgInfos[] = array(
+                'people_name' => $v['people_name'],
+                'similarity' => $v['similarity'],
+                'url' => 'http://www.eyekey.com' . $v['url'],
+            );
+        }
+        return $imgInfos;
     }
 
     private function postData($url, $data)
