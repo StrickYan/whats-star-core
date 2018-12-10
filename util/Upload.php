@@ -36,7 +36,7 @@ class Util_Upload
         $maxFileSize = 8000000; // 上传文件大小限制, 单位BYTE
 
         if ($_SERVER['REQUEST_METHOD'] != 'POST') {
-            Bingo_Log::warning("params invalid");
+            Bingo_Log::warning("params invalid, data[" . json_encode($_SERVER) . "]");
             return false;
         }
 
