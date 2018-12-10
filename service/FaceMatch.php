@@ -57,22 +57,23 @@ class Service_FaceMatch
     private function getSimilarStar($img_url)
     {
         $url = "http://www.eyekey.com/eyekey/apply/face_match_many";
-        $data = array(
+        $param = array(
             // 'url' => "https://imgsa.baidu.com/baike/s%3D500/sign=89fc6048d0ca7bcb797bc72f8e0b6b3f/96dda144ad3459824945bc190bf431adcaef846a.jpg",
             // 'url' => 'https://gss3.bdstatic.com/-Po3dSag_xI4khGkpoWK1HF6hhy/baike/c0%3Dbaike150%2C5%2C5%2C150%2C50/sign=fb9c07eda74bd11310c0bf603bc6cf6a/2f738bd4b31c8701928251782d7f9e2f0708ff7c.jpg',
             'url' => $img_url,
             'canvas_type' => 1,
         );
-        $datas = self::postData($url, $data);
-        $datas = self::decodeHtmlEntity($datas);
-        // $datas = json_encode($datas, JSON_UNESCAPED_UNICODE);
+        $ret = self::postData($url, $param);
+        $ret = self::decodeHtmlEntity($ret);
+        // $ret = json_encode($ret, JSON_UNESCAPED_UNICODE);
 
-        if ('0000' != $datas['res_code']) {
+        if ('0000' != $ret['res_code']) {
+            Bingo_Log::fatal("eye key return failed, data[" . json_encode($ret) . "]");
             return false;
         }
 
         $imgInfos = array();
-        foreach ($datas['result'] as $k => $v) {
+        foreach ($ret['result'] as $k => $v) {
             $ret = self::isUrlExist('http://www.eyekey.com' . $v['url']);
             if (false === $ret) {
                 // unset($datas['result'][$k]); // 过滤无效的图片链接
