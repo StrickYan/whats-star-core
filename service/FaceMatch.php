@@ -42,12 +42,14 @@ class Service_FaceMatch
             $max_height = 1136;
             $img_name = Util_Upload::uploadImg($destination_folder, $input_file_name, $max_width, $max_height); // 调用上传函数
             if (false === $img_name) {
+                Bingo_Log::fatal("Util_Upload::uploadImg return false");
                 return Ad_Response::arrayRet(Const_Error::FAILED, array());
             }
             $img_url = "https://www.beishanwen.com/WhatsStar/upload/" . $img_name;
         }
         $ret = $this->getSimilarStar($img_url);
         if (false === $ret) {
+            Bingo_Log::fatal("getSimilarStar return false");
             return Ad_Response::arrayRet(Const_Error::FAILED, array());
         }
 
