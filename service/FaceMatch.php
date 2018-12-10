@@ -47,11 +47,16 @@ class Service_FaceMatch
             }
             $img_url = "https://www.beishanwen.com/WhatsStar/upload/" . $img_name;
         }
-        $ret = $this->getSimilarStar($img_url);
-        if (false === $ret) {
+        $imgInfos = $this->getSimilarStar($img_url);
+        if (false === $imgInfos) {
             Bingo_Log::fatal("getSimilarStar return false");
             return Ad_Response::arrayRet(Const_Error::FAILED, array());
         }
+
+        $ret = array(
+            'img_url' => $img_url,
+            'match_img_infos' => $imgInfos,
+        );
 
         return Ad_Response::arrayRet(Const_Error::SUCCESS, $ret);
     }
