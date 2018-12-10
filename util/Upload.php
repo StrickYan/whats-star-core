@@ -38,18 +38,18 @@ class Util_Upload
         {
             if (!is_uploaded_file($_FILES["$inputFileName"]['tmp_name'])) // 判断指定的文件是否是通过 HTTP POST 上传的
             {
-                // echo "post出错，尝试修改服务器post文件大小限制，默认2M";
+                Bingo_Log::fatal("post出错，尝试修改服务器post文件大小限制，默认2M");
                 return false;
             }
             $file = $_FILES["$inputFileName"];
             if ($maxFileSize < $file["size"]) // 检查文件大小
             {
-                // echo "文件太大!";
+                Bingo_Log::fatal("文件太大!");
                 return false;
             }
             if (!in_array($file["type"], $upTypes)) // 检查文件类型
             {
-                // echo "文件类型不符!" . $file["type"];
+                Bingo_Log::fatal("文件类型不符!" . $file["type"]);
                 return false;
             }
             if (!file_exists($destinationFolder)) {
@@ -63,11 +63,11 @@ class Util_Upload
             $image_name = $current_time . "." . $ftype;
             $destination = $destinationFolder . $image_name;
             if (file_exists($destination)) {
-                // echo "同名文件已经存在了";
+                Bingo_Log::fatal("同名文件已经存在了");
                 return false;
             }
             if (!move_uploaded_file($filename, $destination)) {
-                // echo "移动文件出错";
+                Bingo_Log::fatal("移动文件出错");
                 return false;
             }
 
