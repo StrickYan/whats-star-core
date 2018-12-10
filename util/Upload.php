@@ -34,52 +34,60 @@ class Util_Upload
             'image/x-png',
         );
         $maxFileSize = 8000000; // 上传文件大小限制, 单位BYTE
-        if ($_SERVER['REQUEST_METHOD'] == 'POST' && !empty($_FILES["$inputFileName"]['tmp_name'])) // 已选择图片才执行下面
-        {
-            if (!is_uploaded_file($_FILES["$inputFileName"]['tmp_name'])) // 判断指定的文件是否是通过 HTTP POST 上传的
-            {
-                Bingo_Log::fatal("post出错，尝试修改服务器post文件大小限制，默认2M");
-                return false;
-            }
-            $file = $_FILES["$inputFileName"];
-            if ($maxFileSize < $file["size"]) // 检查文件大小
-            {
-                Bingo_Log::fatal("文件太大!");
-                return false;
-            }
-            if (!in_array($file["type"], $upTypes)) // 检查文件类型
-            {
-                Bingo_Log::fatal("文件类型不符!" . $file["type"]);
-                return false;
-            }
-            if (!file_exists($destinationFolder)) {
-                mkdir($destinationFolder);
-            }
-            $filename = $file["tmp_name"];
-            $pinfo = pathinfo($file["name"]);
-            $ftype = $pinfo['extension'];
-            // $current_time = time();
-            $current_time = uniqid();
-            $image_name = $current_time . "." . $ftype;
-            $destination = $destinationFolder . $image_name;
-            if (file_exists($destination)) {
-                Bingo_Log::fatal("同名文件已经存在了");
-                return false;
-            }
-            if (!move_uploaded_file($filename, $destination)) {
-                Bingo_Log::fatal("移动文件出错");
-                return false;
-            }
 
-            // 图片压缩并写回原位置替代原文件
-            $route = $destination; // 原图片路径
-            $name = $destinationFolder . $current_time; // 压缩图片存放路径加名称，不带后缀
-            $filetype = $ftype; // 图片类型
-            self::resizeImage($route, $maxWidth, $maxHeight, $name, $filetype); // 调用函数
-            return $image_name;
+        if ($_SERVER['REQUEST_METHOD'] != 'POST') {
+            Bingo_Log::warning("params invalid");
+            return false;
         }
 
-        return false;
+        // 是否选择图片
+        if (empty($_FILES["$inputFileName"]['tmp_name'])) {
+            Bingo_Log::warning("params invalid, data[" . json_encode($_FILES["$inputFileName"]) . "]");
+            return false;
+        }
+
+        // 判断指定的文件是否是通过 HTTP POST 上传的限制
+        if (!is_uploaded_file($_FILES["$inputFileName"]['tmp_name'])) {
+            Bingo_Log::fatal("post出错，尝试修改服务器post文件大小限制，默认2M");
+            return false;
+        }
+
+        $file = $_FILES["$inputFileName"];
+        // 检查文件大小
+        if ($maxFileSize < $file["size"]) {
+            Bingo_Log::fatal("文件太大!");
+            return false;
+        }
+        // 检查文件类型
+        if (!in_array($file["type"], $upTypes)) {
+            Bingo_Log::fatal("文件类型不符!" . $file["type"]);
+            return false;
+        }
+        if (!file_exists($destinationFolder)) {
+            mkdir($destinationFolder);
+        }
+        $filename = $file["tmp_name"];
+        $pinfo = pathinfo($file["name"]);
+        $ftype = $pinfo['extension'];
+        // $current_time = time();
+        $current_time = uniqid();
+        $image_name = $current_time . "." . $ftype;
+        $destination = $destinationFolder . $image_name;
+        if (file_exists($destination)) {
+            Bingo_Log::fatal("同名文件已经存在了");
+            return false;
+        }
+        if (!move_uploaded_file($filename, $destination)) {
+            Bingo_Log::fatal("移动文件出错");
+            return false;
+        }
+
+        // 图片压缩并写回原位置替代原文件
+        $route = $destination; // 原图片路径
+        $name = $destinationFolder . $current_time; // 压缩图片存放路径加名称，不带后缀
+        $filetype = $ftype; // 图片类型
+        self::resizeImage($route, $maxWidth, $maxHeight, $name, $filetype); // 调用函数
+        return $image_name;
     }
 
     /**
