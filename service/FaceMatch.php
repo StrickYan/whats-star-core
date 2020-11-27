@@ -36,7 +36,7 @@ class Service_FaceMatch
         $arrInput = Util_Params::get();
         $img_url = $arrInput['img_url'];
         if (empty($img_url)) {
-            $destination_folder = "/home/wwwroot/default/WhatsStar/upload/"; //上传文件路径
+            $destination_folder = "/data/img/fm/"; //上传文件路径
             $input_file_name = "upfile";
             $max_width = 640;
             $max_height = 1136;
@@ -45,7 +45,7 @@ class Service_FaceMatch
                 Bingo_Log::fatal("Util_Upload::uploadImg return false");
                 return Ad_Response::arrayRet(Const_Error::FAILED, array());
             }
-            $img_url = "https://www.beishanwen.com/WhatsStar/upload/" . $img_name;
+            $img_url = "https://img.beishanwen.com/fm/" . $img_name;
         }
         $imgInfos = $this->getSimilarStar($img_url);
         if (false === $imgInfos) {
